@@ -8,26 +8,32 @@ const UserPage: React.FC = () => {
   const [isHovering, setIsHovering] = useState(false);
 
   const [message, setMessage] = useState<string>("");
+  const [chatList, setChatList] = useState<{ type: "user" | "ai"; text: string }[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const handleSubmit = async (e?: React.FormEvent | React.KeyboardEvent) => {
     if (e) e.preventDefault();
     const content = message.trim();
     if (!content) return;
+
+    // ユーザーの発言を追加
+    setChatList(prev => [...prev, { type: "user", text: content }]);
+
     try {
-      console.log("Form submitted:", content);
-      // await fetch("http://localhost:8000/api/message", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify({ message: content })
-      // });
+      const res = await fetch("http://localhost:8000/ask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: content }),
+      });
+      const data = await res.json();
+      setChatList(prev => [...prev, { type: "ai", text: data.answer }]);
+    //   setSessionId(data.sessionId);
     } catch (err) {
       console.error("submit failed", err);
+      setChatList(prev => [...prev, { type: "ai", text: "回答取得に失敗しました" }]);
     } finally {
       setMessage("");
-      if (textareaRef.current) {
-        textareaRef.current.style.height = "auto";
-      }
+      if (textareaRef.current) textareaRef.current.style.height = "auto";
     }
   };
 
@@ -69,7 +75,6 @@ const UserPage: React.FC = () => {
           onMouseLeave={() => setIsHovering(false)}
           onClick={() => setIsSidebarOpen(true)}
         >
-          {/* 縦線 */}
           <div
             style={{
               position: "absolute",
@@ -102,31 +107,40 @@ const UserPage: React.FC = () => {
         </div>
       )}
 
-      {/* サイドバー */}
       {isSidebarOpen && <Sidebar onClose={() => setIsSidebarOpen(false)} />}
 
       {/* メインコンテンツ */}
-      <div>
+      <div className={styles.wrapper}>
+        <p className={styles.title}>はじめましょう！</p>
+
+        {/* チャット表示 */}
+        <div className={styles.chatContainer}>
+          {chatList.map((chat, idx) => (
+            <div
+              key={idx}
+              className={chat.type === "user" ? styles.userMessage : styles.aiMessage}
+            >
+              {chat.text}
+            </div>
+          ))}
+        </div>
 
         {/* 入力フォーム */}
-        <div className={styles.wrapper}>
-          <p className={styles.title}>はじめましょう！</p>
-          <div className={styles.container}>
-            <form onSubmit={handleSubmit} className={styles.postForm}>
-              <textarea
-                ref={textareaRef}
-                value={message}
-                onInput={handleInput}
-                onKeyDown={handleKeyDown}
-                onChange={(e) => setMessage(e.target.value)}
-                placeholder="メッセージを入力してください..."
-                className={styles.textArea}
-              />
-              <button type="submit" className={styles.postButton}>
-                <SlControlPlay size={24} />
-              </button>
-            </form>
-          </div>
+        <div className={styles.container}>
+          <form onSubmit={handleSubmit} className={styles.postForm}>
+            <textarea
+              ref={textareaRef}
+              value={message}
+              onInput={handleInput}
+              onKeyDown={handleKeyDown}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder="メッセージを入力してください..."
+              className={styles.textArea}
+            />
+            <button type="submit" className={styles.postButton}>
+              <SlControlPlay size={24} />
+            </button>
+          </form>
         </div>
       </div>
     </div>
