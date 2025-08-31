@@ -1,0 +1,20 @@
+.message-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 20%;
+  overflow-y: auto;   /* スクロール */
+}
+
+/* 1行（左右寄せの責務はここ） */
+.message-row {
+  display: flex;
+}
+.message-row-left  { 
+  justify-content: flex-start; 
+  /* text-align: right; */
+}
+.message-row-right { 
+  justify-content: flex-end;   
+  /* text-align: left; */
+}

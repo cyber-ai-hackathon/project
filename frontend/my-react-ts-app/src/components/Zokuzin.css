@@ -1,5 +1,5 @@
 /* 画面全体 */
-.app-container {
+/* .app-container {
     min-height: 100vh;
     display: flex;                /* flexで中央寄せ */
     justify-content: center;
@@ -7,7 +7,7 @@
     padding: 40px 20px;
     background-color: #f5f6fa;
     box-sizing: border-box;
-  }
+  } */
   
   /* フォーム全体 */
   .form-container {

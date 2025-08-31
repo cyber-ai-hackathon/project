@@ -1,5 +1,5 @@
 .wrapper {
-  min-height: 98dvh;
+  min-height: 97dvh;
   display: grid;
   grid-template-rows: 1fr auto; /* 上が伸びる / 下は内容サイズ */
   padding: 0;
@@ -21,7 +21,6 @@
 }
 
 .postForm {
-  /* margin: 0 0 32px;                 画面下に余白 */
   padding: 0;
   border-radius: 20px;
   display: flex;
