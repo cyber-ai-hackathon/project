@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./components/Home";
 import InputForm from "./components/InputForm";
 import UserPage from "./components/UserPage";
-import "./App.css";
+import "./components/Zokuzin.css";
 
 const App: React.FC = () => {
   return (
