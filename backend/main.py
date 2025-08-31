@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from datetime import datetime
 import os
-from typeing import Optional
+from typing import Optional
 
 import boto3
 from fastapi import HTTPException

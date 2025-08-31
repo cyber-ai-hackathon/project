@@ -1,0 +1,42 @@
+.wrapper {
+  min-height: 98dvh;
+  display: grid;
+  grid-template-rows: 1fr auto; /* 上が伸びる / 下は内容サイズ */
+  padding: 0;
+  margin: 0;
+}
+
+.title {
+  margin: 0;
+  text-align: center;
+  font-size: 50px;
+  font-weight: bold;
+  place-self: center; /* 1行目の中央 */
+}
+
+.container {
+  grid-row: 2;               /* 2行目（下段）に配置 */
+  display: flex;
+  justify-content: center;   /* 横中央 */
+}
+
+.postForm {
+  /* margin: 0 0 32px;                 画面下に余白 */
+  padding: 0;
+  border-radius: 20px;
+  display: flex;
+  gap: 8px;
+  width: min(720px, 90vw);          /* 中央の最大幅 */
+}
+
+.textArea {
+  flex: 1;
+  width: 100%;
+  padding: 0 20px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+  height: 50px;
+  resize: none; /* 手動リサイズ無効 */
+  overflow: hidden;
+}
