@@ -1,84 +1,72 @@
-# backend/main.py
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from datetime import datetime
-import os
-from typing import Optional
-
 import boto3
-from fastapi import HTTPException
-import json
+import uuid
+from fastapi.middleware.cors import CORSMiddleware
+import requests
 
 app = FastAPI()
 
-# フロントエンドからのリクエストを許可するためのCORS設定
-origins = [
-    "http://localhost:5173",  # Viteのデフォルトポート
-]
-
-AWS_REGION = os.getenv("AWS_REGION")
-S3_BUCKET = os.getenv("S3_BUCKET")
-S3_PREFIX = os.getenv("S3_PREFIX")
-S3_CLIENT = boto3.client('s3')
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["http://localhost:5173"],  # フロントのURLを指定
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
+# S3クライアント初期化（直接書き込み）
+s3 = boto3.client(
+    's3',
+)
 
-@app.get("/api/message")
-def get_message():
-    return {"message": "Hello from FastAPI!"}
+BUCKET_NAME = 'god-people'  # バケット名だけでOK、arn形式は不要
 
-class god_peopele_model(BaseModel):
-    name: str
+# Pydanticモデル
+class FormData(BaseModel):
+    houkokuSha: str
     client: str
-    
-    text: str
-    created_at: Optional[datetime] = None 
-    
-@app.post("/api/send-data")
-def receive_data(data: dict):
-    if not S3_BUCKET:
-        raise HTTPException(status_code=500, detail="S3_BUCKET is not configured")
-    
-    # created_at が未入力ならUTCの現在時刻にする
-    created_dt = payload.created_at or datetime.now(timezone.utc)
-    # タイムスタンプ(ファイル名用)は秒精度のUTC
-    ts_for_key = created_dt.astimezone(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    houkokuShomei: str
+    category: str
+    scenarioHonbun: str
+    chuiTenHoketsu: str = ""
+    sankouShiryo: str = ""
 
-    # 保存するJSON本体（ISO8601のUTCで保存）
-    record = {
-        "name": payload.name,
-        "text": payload.text,
-        "created_at": created_dt.astimezone(timezone.utc).isoformat(),
-        "saved_at": datetime.now(timezone.utc).isoformat(),
-    }
-
-    key = f"{S3_PREFIX}{payload.name}_{ts_for_key}.json"
-
+@app.post("/upload-form")
+async def upload_form(data: FormData):
     try:
+        object_key = f"forms/{uuid.uuid4()}.json"
         s3.put_object(
-            Bucket=S3_BUCKET,
-            Key=key,
-            Body=json.dumps(record, ensure_ascii=False).encode("utf-8"),
-            ContentType="application/json; charset=utf-8",
+            Bucket=BUCKET_NAME,
+            Key=object_key,
+            Body=data.json().encode('utf-8'),
+            ContentType='application/json'
         )
-    except ClientError as e:
-        # S3エラーをHTTP 502 で返す
-        raise HTTPException(status_code=502, detail=f"Failed to upload to S3: {e}")
+        return {"message": "属人データS3に保存成功しました", "s3_key": object_key}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-    return {
-        "ok": True,
-        # "bucket": S3_BUCKET,
-        # "key": key,
-        "record": record,
-    }
+# AIエージェント対する処理
+class QuestionRequest(BaseModel):
+    question: str
+    # staff: str
+
+AI_AGENT_API_URL = ""
+
+@app.post("/ask")
+async def ask_question(request: QuestionRequest):
+    try:
+        # 作成されたAIエージェントに質問を送信する
+        payload = {
+            "question": request.question,
+            "format": "markdown"
+        }
+        response = requests.post(AI_AGENT_API_URL, json=payload)
+        response.raise_for_status()
+        answer = response.json().get("answer", "No answer found")
+        return {
+            "answer": answer
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e)) 

@@ -1,0 +1,101 @@
+/* 画面全体 */
+.app-container {
+    min-height: 100vh;
+    display: flex;                /* flexで中央寄せ */
+    justify-content: center;
+    align-items: flex-start;      /* 上寄せ（中央にしたければ center） */
+    padding: 40px 20px;
+    background-color: #f5f6fa;
+    box-sizing: border-box;
+  }
+  
+  /* フォーム全体 */
+  .form-container {
+    width: 100%;
+    max-width: 900px;             /* PCの幅制御 */
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    box-sizing: border-box;
+  }
+  
+  /* タイトル */
+  .form-title {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  .form-subtitle {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 1.2rem;
+    color: #666;
+  }
+  
+  /* フィールド全体 */
+  .input-field {
+    margin-bottom: 20px;
+    width: 100%;
+  }
+  
+  /* ラベル */
+  .input-label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    font-size: 1rem;
+    color: #333;
+  }
+  
+  /* 必須/任意 表示 */
+  .required-label {
+    color: #e53935;  /* 赤 */
+    font-weight: normal;
+    margin-left: 5px;
+  }
+  
+  .optional-label {
+    color: #999;
+    font-weight: normal;
+    margin-left: 5px;
+  }
+  
+  /* 入力ボックス */
+  .input-box {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    transition: border 0.2s ease;
+  }
+  
+  .input-box:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0,123,255,0.2);
+  }
+  
+  /* 送信ボタン */
+  .submit-button {
+    width: 100%;
+    padding: 14px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background-color 0.25s ease;
+  }
+  
+  .submit-button:hover {
+    background-color: #0056b3;
+  }
+  

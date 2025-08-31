@@ -1,17 +1,21 @@
-import React from "react";
+import React, { useState, useRef } from "react";
+import Sidebar from "./Sidebar";
 import styles from "./UserPage.module.css";
 import { SlControlPlay } from "react-icons/sl";
 
 const UserPage: React.FC = () => {
-  const [message, setMessage] = React.useState<string>("");
-  const textareaRef = React.useRef<HTMLTextAreaElement | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isHovering, setIsHovering] = useState(false);
+
+  const [message, setMessage] = useState<string>("");
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const handleSubmit = async (e?: React.FormEvent | React.KeyboardEvent) => {
-    if (e) e.preventDefault(); 
+    if (e) e.preventDefault();
     const content = message.trim();
-    if (!content) return; 
+    if (!content) return;
     try {
-      console.log("Form submitted");
+      console.log("Form submitted:", content);
       // await fetch("http://localhost:8000/api/message", {
       //   method: "POST",
       //   headers: { "Content-Type": "application/json" },
@@ -27,40 +31,104 @@ const UserPage: React.FC = () => {
     }
   };
 
-    const handleInput = (e: React.FormEvent<HTMLTextAreaElement>) => {
-      const textarea = e.currentTarget;
-      textarea.style.height = "auto";
-      textarea.style.height = textarea.scrollHeight + "px";
-    };
-  
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        handleSubmit(e);
-      }
-    };
-  
+  const handleInput = (e: React.FormEvent<HTMLTextAreaElement>) => {
+    const textarea = e.currentTarget;
+    textarea.style.height = "auto";
+    textarea.style.height = textarea.scrollHeight + "px";
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit(e);
+    }
+  };
 
   return (
-    <div className={styles.wrapper}>  
-      <p className={styles.title}>はじめましょう！</p>
-      {/* 改行すると上が消えちゃう問題 */}
-      <div className={styles.container}>
-        <form onSubmit={handleSubmit} className={styles.postForm}>
-          <textarea
-            ref={textareaRef}
-            value={message}
-            onInput={handleInput}
-            onKeyDown={handleKeyDown}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="メッセージを入力してください..."
-            className={styles.textArea}
+    <div>
+      {/* サイドバー開閉ボタン */}
+      {!isSidebarOpen && (
+        <div
+          style={{
+            position: "fixed",
+            left: 0,
+            top: "50%",
+            transform: "translateY(-50%)",
+            width: "50px",
+            height: "50px",
+            backgroundColor: "#007bff",
+            color: "white",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            borderTopRightRadius: "5px",
+            borderBottomRightRadius: "5px",
+          }}
+          onMouseEnter={() => setIsHovering(true)}
+          onMouseLeave={() => setIsHovering(false)}
+          onClick={() => setIsSidebarOpen(true)}
+        >
+          {/* 縦線 */}
+          <div
+            style={{
+              position: "absolute",
+              right: 0,
+              top: 0,
+              width: "1px",
+              height: "100%",
+              backgroundColor: "rgba(255,255,255,0.5)",
+            }}
           />
-          <button type="submit" className={styles.postButton}>
-            <SlControlPlay size={24} />
-          </button>
-        </form>
-    </div>
+          ☰
+          {isHovering && (
+            <div
+              style={{
+                position: "absolute",
+                left: "110%",
+                top: "50%",
+                transform: "translateY(-50%)",
+                marginLeft: "10px",
+                backgroundColor: "black",
+                color: "white",
+                padding: "5px 10px",
+                borderRadius: "5px",
+                whiteSpace: "nowrap",
+              }}
+            >
+              サイドバーを開く
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* サイドバー */}
+      {isSidebarOpen && <Sidebar onClose={() => setIsSidebarOpen(false)} />}
+
+      {/* メインコンテンツ */}
+      <div>
+
+        {/* 入力フォーム */}
+        <div className={styles.wrapper}>
+          <p className={styles.title}>はじめましょう！</p>
+          <div className={styles.container}>
+            <form onSubmit={handleSubmit} className={styles.postForm}>
+              <textarea
+                ref={textareaRef}
+                value={message}
+                onInput={handleInput}
+                onKeyDown={handleKeyDown}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder="メッセージを入力してください..."
+                className={styles.textArea}
+              />
+              <button type="submit" className={styles.postButton}>
+                <SlControlPlay size={24} />
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

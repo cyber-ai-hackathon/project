@@ -25,7 +25,7 @@ const InputForm: React.FC = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // 必須チェック
@@ -46,9 +46,25 @@ const InputForm: React.FC = () => {
         return;
     }
 
-    // バリデーション通過後
-    console.log("フォームデータ:", formData);
-    alert("フォームが送信されました！コンソールを確認してください。");
+    try {
+        const response = await fetch("http://localhost:8000/upload-form", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(formData)
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            alert("S3 に格納できました！\n保存先: " + result.s3_key);
+        } else {
+            alert("保存に失敗しました: " + result.detail);
+        }
+    } catch (error) {
+        alert("通信エラーが発生しました: " + error);
+    }
   };
 
   return (
@@ -117,7 +133,7 @@ const InputForm: React.FC = () => {
           onChange={handleChange}
           placeholder="例: URLやファイル名など"
         />
-        <button type="submit" className="submit-button">
+        <button type="submit" className="submit-button" onClick={handleSubmit}>
           情報を送信する
         </button>
       </form>
