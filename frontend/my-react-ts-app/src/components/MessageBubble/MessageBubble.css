@@ -1,0 +1,57 @@
+.bubble {
+  max-width: min(68ch, 70%);
+  padding: 10px 14px;
+  border-radius: 14px;
+  position: relative;
+  line-height: 1.5;
+  word-break: break-word;
+  box-shadow: 0 1px 2px rgba(0,0,0,.06);
+  overflow-wrap: anywhere;
+}
+
+/* 役割ごとの色 */
+.bubble-user {
+  background: #cbe7ff;          /* ユーザー（右） */
+  border-radius: 14px;
+  width: fit-content;
+  max-width: 50%;
+  padding: 16px 14px;
+  margin-left: auto;  /* 右寄せ */
+}
+.bubble-ai {
+  background: #f1f3f5;          /* AI（左） */
+  width: fit-content;
+  padding: 16px 14px;
+  border-radius: 14px;
+  /* margin-right: auto; 左寄せ */
+}
+
+.bubble-text { 
+  margin: 0;
+  font-size: 16px;
+  text-align: left;
+}
+
+/* ちょいテール（擬似要素） */
+.bubble-user::after,
+.bubble-ai::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  width: 0; height: 0;
+  border: 8px solid transparent;
+}
+
+/* .bubble-user::after {
+  right: -4px;
+  border-left-color: #cbe7ff;
+  border-right: 0;
+  border-bottom: 0;
+}
+
+.bubble-ai::after {
+  left: -4px;
+  border-right-color: #f1f3f5;
+  border-left: 0;
+  border-bottom: 0;
+} */
