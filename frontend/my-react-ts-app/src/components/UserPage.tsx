@@ -57,6 +57,7 @@ const UserPage: React.FC = () => {
     const content = question.trim();
     if (!content) return;
 
+
     try {
       console.log("Form submitted:", content);
       await fetch("http://localhost:8000/ask", {
@@ -68,6 +69,7 @@ const UserPage: React.FC = () => {
       setMessages(prev => [...prev, { id: uid, role: "user", text: content, timestamp: new Date() }]);
     } catch (err) {
       console.error("submit failed", err);
+      setChatList(prev => [...prev, { type: "ai", text: "回答取得に失敗しました" }]);
     } finally {
       setQuestion("");
       if (textareaRef.current) {
@@ -118,7 +120,6 @@ const UserPage: React.FC = () => {
           onMouseLeave={() => setIsHovering(false)}
           onClick={() => setIsSidebarOpen(true)}
         >
-          {/* 縦線 */}
           <div
             style={{
               position: "absolute",
@@ -151,11 +152,23 @@ const UserPage: React.FC = () => {
         </div>
       )}
 
-      {/* サイドバー */}
       {isSidebarOpen && <Sidebar onClose={() => setIsSidebarOpen(false)} />}
 
       {/* メインコンテンツ */}
-      <div>
+      <div className={styles.wrapper}>
+        <p className={styles.title}>はじめましょう！</p>
+
+        {/* チャット表示 */}
+        <div className={styles.chatContainer}>
+          {chatList.map((chat, idx) => (
+            <div
+              key={idx}
+              className={chat.type === "user" ? styles.userMessage : styles.aiMessage}
+            >
+              {chat.text}
+            </div>
+          ))}
+        </div>
 
         {/* 入力フォーム */}
         <div className="wrapper">

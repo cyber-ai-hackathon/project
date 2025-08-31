@@ -1,3 +1,4 @@
+import json
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import boto3
@@ -18,6 +19,12 @@ app.add_middleware(
 # S3クライアント初期化（直接書き込み）
 s3 = boto3.client(
     's3',
+)
+
+# lambda初期化
+lambda_client = boto3.client(
+    'lambda',
+
 )
 
 BUCKET_NAME = 'god-people'  # バケット名だけでOK、arn形式は不要
@@ -46,27 +53,40 @@ async def upload_form(data: FormData):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# AIエージェント対する処理
 class QuestionRequest(BaseModel):
     question: str
-    # staff: str
-
-AI_AGENT_API_URL = ""
+    session_id: str | None = None
 
 @app.post("/ask")
 async def ask_question(request: QuestionRequest):
     try:
-        # 作成されたAIエージェントに質問を送信する
-        payload = {
-            "question": request.question,
-            "format": "markdown"
-        }
-        response = requests.post(AI_AGENT_API_URL, json=payload)
-        response.raise_for_status()
-        answer = response.json().get("answer", "No answer found")
-        return {
-            "answer": answer
-        }
+        payload = {"query": request.question}
+        if request.session_id:
+            payload["sessionId"] = request.session_id
+
+        # Lambdaを呼び出す
+        response = lambda_client.invoke(
+            FunctionName="output_claude_rag_agent",  # Lambda名に置き換える
+            InvocationType="RequestResponse",
+            Payload=json.dumps(payload)
+        )
+
+        # Payloadを読み込む
+        response_payload = response['Payload'].read().decode('utf-8')
+        response_dict = json.loads(response_payload)
+
+        # Lambdaが辞書で返している場合はそのままbodyを取得
+        body = response_dict.get('body', {})  # すでに dict なら json.loads は不要
+        if isinstance(body, str):
+            # 万が一文字列だった場合だけ辞書化
+            body = json.loads(body)
+
+        # AI回答とsessionIdを取得
+        ai_response = body.get("response", "")
+        session_id = body.get("sessionId")
+
+        return {"answer": ai_response, "sessionId": session_id}
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e)) 
+        print("Exception occurred:", e)
+        raise HTTPException(status_code=500, detail=str(e))
